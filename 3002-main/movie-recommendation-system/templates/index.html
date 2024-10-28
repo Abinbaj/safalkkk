@@ -3,29 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trending Movies</title>
+    <title>Home - Movie Recs</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-</head>
-<body>
 
+    <style>
+        /* General Styles */
+        body {
+            background-color: #0b0c10;
+            color: #c5c6c7;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background-color: #1f2833 !important;
+        }
+        .navbar-brand {
+            color: #66fcf1 !important;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: #c5c6c7 !important;
+        }
+        .nav-link:hover {
+            color: #66fcf1 !important;
+        }
+
+        /* Section Headers */
+        h2.section-title {
+            color: #66fcf1;
+            font-weight: bold;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Movie Card Styles */
+        .movie-card {
+            background-color: #1f2833;
+            border: none;
+            transition: transform 0.3s;
+            color: #c5c6c7;
+        }
+        .movie-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(102, 252, 241, 0.2);
+        }
+        .movie-img {
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .card-title, .card-text {
+            color: #c5c6c7;
+        }
+    </style>
+</head>
+
+<body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark shadow">
         <a class="navbar-brand" href="/">Movie Recs</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/top-rated">Top Rated</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/new-released">New Released</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/top-rated">Top Rated</a></li>
+                <li class="nav-item"><a class="nav-link" href="/new-released">New Released</a></li>
+                <li class="nav-item"><a class="nav-link" href="/watchlist">Watchlist</a></li>
+                <li class="nav-item"><a class="nav-link" href="/favorites">Favorites</a></li>
             </ul>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
@@ -35,95 +84,71 @@
                     <a class="nav-link" href="/auth/register">Register</a>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0" action="/recommend" method="POST">
-                <button class="btn btn-outline-secondary my-2 my-sm-0" type="button" id="filterButton">Filter</button>
-                <input class="form-control mr-sm-2" type="search" placeholder="Enter Movie Title" aria-label="Search" name="movie_title" required>
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            <form class="form-inline" action="/recommend" method="POST">
+                <input class="form-control mr-sm-2" type="search" placeholder="Enter Movie Title" name="movie_title" required>
+                <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <div class="container mt-5">
-        <h2 class="text-center">Trending Movies</h2>
-        <div class="row mt-4">
+
+        <!-- Trending Movies Section -->
+        <h2 class="section-title">Trending Movies</h2>
+        <div class="row">
             {% for movie in trending_movies %}
             <div class="col-md-3 mb-4">
-                <div class="card">
-                    <a href="/movie/{{ movie['id'] }}">
-                        <img src="{{ movie['poster'] }}" alt="{{ movie['title'] }}" class="card-img-top">
-                    </a>
-                    <div class="card-body">
+                <div class="card movie-card">
+                    <img src="{{ movie['poster'] }}" alt="{{ movie['title'] }}" class="card-img-top movie-img">
+                    <div class="card-body text-center">
                         <h5 class="card-title">{{ movie['title'] }}</h5>
                         <p class="card-text">Rating: {{ movie['rating'] }}</p>
                     </div>
                 </div>
             </div>
             {% else %}
-            <div class="col-12">
-                <p class="text-center">No trending movies found.</p>
-            </div>
+            <p class="col-12 text-center">No trending movies found.</p>
             {% endfor %}
         </div>
-    </div>
 
-    <!-- Filter Modal -->
-    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="filterModalLabel">Filter Movies</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="filterForm" action="/filter" method="GET">
-                        <div class="form-group">
-                            <label for="genre">Genre</label>
-                            <input type="text" class="form-control" id="genre" name="genre" placeholder="e.g. Action, Comedy">
-                        </div>
-                        <div class="form-group">
-                            <label for="country">Country</label>
-                            <input type="text" class="form-control" id="country" name="country" placeholder="e.g. US, UK">
-                        </div>
-                        <div class="form-group">
-                            <label for="year">Year</label>
-                            <input type="text" class="form-control" id="year" name="year" placeholder="e.g. 2023">
-                        </div>
-                        <div class="form-group">
-                            <label for="rating">Minimum Rating</label>
-                            <input type="number" class="form-control" id="rating" name="rating" placeholder="e.g. 7.0" step="0.1">
-                        </div>
-                        <div class="form-group">
-                            <label for="sortby">Sort By</label>
-                            <select class="form-control" id="sortby" name="sortby">
-                                <option value="popularity.desc">Popularity Descending</option>
-                                <option value="popularity.asc">Popularity Ascending</option>
-                                <option value="release_date.desc">Release Date Descending</option>
-                                <option value="release_date.asc">Release Date Ascending</option>
-                                <option value="vote_average.desc">Rating Descending</option>
-                                <option value="vote_average.asc">Rating Ascending</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Apply Filters</button>
-                        <button type="button" class="btn btn-secondary" id="resetFilters">Reset</button>
-                    </form>
+        <!-- Top Rated Movies Section -->
+        <h2 class="section-title">Top Rated Movies</h2>
+        <div class="row">
+            {% for movie in top_rated_movies %}
+            <div class="col-md-3 mb-4">
+                <div class="card movie-card">
+                    <img src="{{ movie['poster'] }}" alt="{{ movie['title'] }}" class="card-img-top movie-img">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ movie['title'] }}</h5>
+                        <p class="card-text">Rating: {{ movie['rating'] }}</p>
+                    </div>
                 </div>
             </div>
+            {% else %}
+            <p class="col-12 text-center">No top-rated movies found.</p>
+            {% endfor %}
         </div>
+
+        <!-- New Released Movies Section -->
+        <h2 class="section-title">New Released Movies</h2>
+        <div class="row">
+            {% for movie in new_released_movies %}
+            <div class="col-md-3 mb-4">
+                <div class="card movie-card">
+                    <img src="{{ movie['poster'] }}" alt="{{ movie['title'] }}" class="card-img-top movie-img">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ movie['title'] }}</h5>
+                        <p class="card-text">Rating: {{ movie['rating'] }}</p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="col-12 text-center">No new releases found.</p>
+            {% endfor %}
+        </div>
+
     </div>
-
-    <script>
-        $(document).ready(function () {
-            $('#filterButton').click(function () {
-                $('#filterModal').modal('show');
-            });
-
-            $('#resetFilters').click(function () {
-                $('#filterForm')[0].reset();
-            });
-        });
-    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

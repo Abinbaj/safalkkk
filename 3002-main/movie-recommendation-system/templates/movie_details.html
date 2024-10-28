@@ -25,6 +25,15 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/new-released">New Released</a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/watchlist">View Watchlist</a>
+             </li>
+
+            <li class="nav-item">
+                    <a class="nav-link" href="/favorites">View Favorites</a>
+            </li>
+            
             </ul>
             <!-- Search Bar -->
             <form class="form-inline my-2 my-lg-0" action="/recommend" method="POST">
@@ -48,8 +57,7 @@
 
                 <!-- Action Buttons -->
                 <div class="action-buttons mt-3">
-                    <button class="btn btn-primary" onclick="window.location.href='/watchlist'">View Watchlist</button>
-                    <button class="btn btn-warning" onclick="window.location.href='/favorites'">View Favorites</button>
+                    
                     <button class="btn btn-success" onclick="addToWatchlist('{{ movie['id'] }}')">Add to Watchlist</button>
                     <button class="btn btn-info" onclick="addToFavorites('{{ movie['id'] }}')">Add to Favorites</button>
                 </div>
@@ -69,32 +77,24 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
     <script>
-        function addToWatchlist(movieId) {
-            // Call the API to add the movie to the watchlist
-            fetch(`/watchlist/add/${movieId}`, { method: 'POST' })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Movie added to watchlist!');
-                        recordHistory(movieId); // Record in history
-                        window.location.href = '/watchlist'; // Redirect to watchlist page
-                    } else {
-                        alert('Error adding movie to watchlist.');
-                    }
-                });
-        }
+       function addToWatchlist(movieId) {
+    // Call the API to add the movie to the watchlist
+    fetch(`/watchlist/add/${movieId}`, { method: 'POST' })
+        .then(() => {
+            recordHistory(movieId); // Record in history
+            window.location.href = '/watchlist'; // Redirect to watchlist page
+        })
+        .catch(error => console.error('Error adding movie to watchlist:', error));
+}
 
-        function addToFavorites(movieId) {
-            // Call the API to add the movie to favorites
-            fetch(`/favorites/add/${movieId}`, { method: 'POST' })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Movie added to favorites!');
-                        window.location.href = '/favorites'; // Redirect to favorites page
-                    } else {
-                        alert('Error adding movie to favorites.');
-                    }
-                });
-        }
+function addToFavorites(movieId) {
+    // Call the API to add the movie to favorites
+    fetch(`/favorites/add/${movieId}`, { method: 'POST' })
+        .then(() => {
+            window.location.href = '/favorites'; // Redirect to favorites page
+        })
+        .catch(error => console.error('Error adding movie to favorites:', error));
+}
 
         function recordHistory(movieId) {
             // Call the API to record the viewing history
